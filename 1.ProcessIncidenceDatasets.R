@@ -86,11 +86,6 @@ prop_care_7days <- readRDS("./Data/enrollment_ps_weights_7days_20250408.Rds") |>
 pehus2 <- pehus |>
   filter(pop_country!=5 | (pop_cluster_id!=7 & pop_country==5))
 
-# Export Peru weights for Paul
-# peru_weights <- prop_care |>
-#   filter(substr(as.character(pid),1,1)==6)
-# write_excel_csv(peru_weights, paste0("./Exports/PropensityWeights_Peru_",today,".csv"))
-
 ############################################
 ######## BUILD DENOMINATOR #################
 ############################################
