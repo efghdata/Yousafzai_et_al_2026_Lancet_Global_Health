@@ -59,9 +59,6 @@ clusters <- bind_rows(bangladesh, kenya, malawi, mali, peru, pakistan, gambia) %
 # DCS screening, enrollment and lab testing - excluded 6302484 and 7104928
 prescreening <- readRDS("./Data/DCS_01_prescreening.Rds")  %>% 
   mutate(temp=substr(as.character(serial_id),1,1))
-
-table(prescreening$temp, prescreening$pscr_country) # Check countries assigned correctly
-
 screening <- readRDS("./Data/DCS_02_screening.Rds")
 preenrollment <- readRDS("./Data/DCS_03_preenrollment.Rds")
 enrollment <- readRDS("./Data/DCS_04_enrollment.Rds") 
@@ -96,10 +93,6 @@ cluster_comp2 <- cluster_comp %>%
   rename(pop_cluster_id=clcom_cluster_id, pop_subcluster_id=clcom_subcluster_id) %>%
   mutate(cluster_complete=1,
          pop_country=clcom_country)
-
-table(cluster_comp2$clcom_country)
-
-table(cluster_comp$clcom_households,cluster_comp$clcom_country)
 
 cluster_comp3 <- cluster_comp %>%
   filter(clcom_households %in% c(1,2)) |> # remove unenumeratd clusters
@@ -664,11 +657,7 @@ culture_results <- rectal_swab_results %>%
                                 swi_isolate_group==1 & is.na(swi_isolate_type_dys) ~ 3)) %>%
   distinct()
 
-temp <- culture_results %>% filter(!is.na(dys_serotype))
-
 # Build TAC dataset  
-table(tac$Shigella.speciation.serotype, useNA="ifany")
-
 tac_results <- tac_long %>%
   filter(target=="Shigella EIEC" & b_attributable==1) |>
   mutate(enroll_site=case_when(groupid == "Bangladesh" ~ 1,
@@ -714,9 +703,6 @@ tac_results <- tac_long %>%
                           ifelse(pid %in% c(7112013,5601798),NA,swi_isolate_type))))))))) %>%
   select(pid,ct,sample_type,swi_isolate_group,swi_isolate_type,serotype) %>%
   mutate(source="tac")
-  
-table(tac_results$serotype,tac_results$swi_isolate_group, useNA = "ifany")
-table(tac_results$serotype,tac_results$swi_isolate_type, useNA = "ifany")
 
   # PULL OUT COINFECTIONS AND APPEND THEM INTO DATASET - HAVE TO CHECK THESE EVERY TIME
   tac_results_coinfections <- tac_long %>%
@@ -750,9 +736,6 @@ table(tac_results$serotype,tac_results$swi_isolate_type, useNA = "ifany")
                                       swi_isolate_group==2                                               ~ 16)) %>%
     select(pid,ct,sample_type,swi_isolate_group,swi_isolate_type,serotype) %>%
     mutate(source="tac")
-  
-  table(tac_results_coinfections$serotype,tac_results_coinfections$swi_isolate_group, useNA = "ifany")
-  table(tac_results_coinfections$serotype,tac_results_coinfections$swi_isolate_type, useNA = "ifany")
 
   # Combine culture and TAC results and merge in covariates
   shigella_results <- culture_results %>% # combine lab results
@@ -973,30 +956,6 @@ table(tac_results$serotype,tac_results$swi_isolate_type, useNA = "ifany")
                      "mvs","mvs_dys","mvs_dys_biv","mvs_dys_quad","mvs_dys_quad2","gems_msd_quad2","month","year", "clark","maled","mon_yr")) %>%
     rename(culture_wt_sens=culture,tac_wt_sens=tac)
 
-test_num <- numerator_merge %>% filter(is.na(serogroup) & 
-                                       is.na(serotype) & 
-                                       is.na(dys_serotype) & 
-                                       is.na(quad) & 
-                                       is.na(quad2) & 
-                                       is.na(biv) & 
-                                       is.na(hosp_during_episode) & 
-                                       is.na(gems_msd) & 
-                                       is.na(gems_msd_biv) & 
-                                       is.na(gems_msd_quad) & 
-                                       is.na(gems_msd_quad2) & 
-                                       is.na(gems_shig) & 
-                                       is.na(mvs) &
-                                       is.na(maled) & 
-                                       is.na(clark) &
-                                       is.na(mvs_dys) &
-                                       is.na(mvs_dys_biv) &
-                                       is.na(mvs_dys_quad) &
-                                       is.na(mvs_dys_quad2) &
-                                       is.na(agegroup) & 
-                                       is.na(month) &
-                                       is.na(fac_id) &
-                                       is.na(dysentery))
-
 write_rds(numerator_merge, paste0("./Last Step Datasets/numerator.Rds")) 
 
 # Export TAC and culture results to look at serotypes
@@ -1007,9 +966,6 @@ serotype_dist <- shigella_results |>
                                   labels = c("1a","1b","1d","2a","2b","3a","3b","4a","4b","5a","5b","6","X","Y","Non-typeable","Other","7a")),
          serogroup=factor(serogroup,levels = c(1:5),
                                   labels = c("S. dysenteriae","S. flexneri","S. boydii","S. sonnei","Undetermined")))
-
-table(serotype_dist$serogroup,serotype_dist$serotype, useNA="ifany")
-table(serotype_dist$sens2, serotype_dist$source,useNA = "ifany")
 
 write_rds(serotype_dist, paste0("./Last Step Datasets/serotype_dist.Rds")) 
 
@@ -1087,5 +1043,5 @@ num_diarrhea_overall_total <- diarrhea_results %>%
    
 # Rbind list plus overall non-stratified
 diarrhea_numerator <- bind_rows(num_diarrhea_overall_facility, num_diarrhea_overall_site, num_diarrhea_overall_total)
-
+    
 write_rds(diarrhea_numerator, paste0("./Last Step Datasets/diarrhea_numerator.Rds")) 
