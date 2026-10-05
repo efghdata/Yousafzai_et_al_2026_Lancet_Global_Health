@@ -1113,7 +1113,6 @@ antibiotic_graphs <- antibiotic_tot_all %>%
 # Export last step dataset
 write_rds(antibiotic_graphs, paste0("./Last Step Datasets/abx_fig.Rds")) 
 
-
 ### Create table
 # Reshape results BACK into long form
 antibiotic_wide <- antibiotic_all |>
@@ -1627,6 +1626,5 @@ cause_of_death <- cod |>
          cause_2_oth=ifelse(cause_2_oth1_code=="","",paste0(cause_2_oth1_code,": ",cause_2_oth1_desc)),
          cause_2_final=ifelse(cause_2_oth=="",cause_2,paste0(cause_2,", ",cause_2_oth))) |>
   select(country:cause_1c,cause_2_final)
-
 
 write_rds(cause_of_death, paste0("./Last Step Datasets/cause_of_death.Rds")) 
